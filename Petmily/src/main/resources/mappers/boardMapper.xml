@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace="banana.apple.mapper.boardMapper">
+
+<insert id="infoInsert" parameterType="hashmap">
+	insert into infoboard (seq, id, title, content, wdate, root, step, indent) values
+		((select nvl(max(seq),0)+1 from infoboard),#{id},'['||#{sub}||'] '||#{title},#{content},sysdate,
+		(select nvl(max(seq),0)+1 from infoboard),0,0)
+</insert>
+
+<select id="infoList" resultType="hashmap" parameterType="hashmap">
+	<![CDATA[ select seq,id,title,to_char(wdate, 'yyyy/mm/dd') wdate,cnt,root,step,indent 
+  	from (select i.* , ROW_NUMBER() OVER(order by root desc, step asc) rnum from infoboard i)
+  	where rnum >= #{fno} and rnum <= #{lno}]]>
+</select>
+
+<select id="infoDetail" resultType="hashmap" parameterType="hashmap">
+	select * from infoboard where seq=${seq}
+</select>
+
+<select id="infoPageCount" resultType="integer">
+	select count(*) from infoboard
+</select>
+
+<insert id="infoReplyInsert" parameterType="hashmap">
+	insert into inforeply (seq, id, content, rdate, root, step, indent, root1, myimg) values
+			((select nvl(max(seq),0)+1 from inforeply),#{id},#{content},sysdate,
+			#{root},#{step},#{indent},#{root1},#{myimg})
+</insert>
+
+<select id="infoReplyList" resultType="hashmap" parameterType="hashmap">
+	select seq,id,content,to_char(rdate, 'yy//mm/dd') rdate,root,step,indent,myimg from inforeply where root=${root} order by seq asc
+</select>
+
+<select id="infoRReplyList" resultType="hashmap" parameterType="hashmap">
+	select seq,id,content,to_char(rdate, 'yy//mm/dd') rdate,root,step,indent,root1,myimg from inforeply where root=${root} and root1=${root1} order by seq asc
+</select>
+
+<delete id="infoDelete">
+	delete infoboard where seq=#{seq}
+</delete>
+
+<update id="infoUpdate">
+	update infoboard set title='['||#{sub}||'] '||#{title}, content=#{content} where seq=#{seq}
+</update>
+
+<insert id="noticeInsert" parameterType="hashmap">
+	insert into pnotice(seq,title,content,ndate,cnt)values((select nvl(max(seq),0)+1 from pnotice),#{title},#{content},sysdate,0) 
+</insert>
+
+<select id="totalCount" resultType="integer">
+	select count(*) from pnotice 
+</select>
+
+<select id="noticeList" resultType="hashmap">
+	<![CDATA[ select seq,title,content,to_char(ndate,'yyyy/mm/dd') ndate,cnt from (select n.*, ROW_NUMBER() OVER(order by seq desc) rnum
+   	from pnotice n)where rnum >= #{fno} and rnum <=#{lno}]]>
+</select>
+
+<update id="countUp" parameterType="hashmap">
+	update pnotice set cnt=cnt+1 where seq=#{seq}
+</update>
+
+<select id="noticeDetail" resultType="hashmap"> 
+	select * from (select seq,title,content,to_char(ndate,'yyyy/mm/dd') ndate,cnt, lag(seq,1) over(order by seq) preseq, lead(seq,1) over(order by seq) nextseq,lag(title,1,'이전글이 없습니다.') over(order by seq) pretitle,lead(title,1,'다음글이 없습니다.') over(order by seq) nexttitle from pnotice) where seq=#{seq} 
+</select>
+
+<update id="noticeUpdate" parameterType="hashmap">
+	update pnotice set title=#{title},content=#{content} where seq=#{seq} 
+</update>
+
+<delete id="noticeDelete">
+	delete pnotice where seq=#{seq} 
+</delete>
+</mapper>

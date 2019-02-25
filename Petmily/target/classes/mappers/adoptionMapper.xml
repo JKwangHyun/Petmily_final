@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace="banana.apple.mapper.adoptionMapper">
+
+<insert id="registration" parameterType="hashmap">
+	insert into poboard (seq, id, title, content, pdate, pettype, petage, petgender, petkind, address, mainimg, subimg, root, step, indent) values
+		((select nvl(max(seq),0)+1 from poboard),#{id},#{title},#{content},sysdate,#{pettype},#{petage},#{petgender},#{petkind},#{address},
+		#{mainimg},#{subimg},(select nvl(max(seq),0)+1 from poboard),0,0)
+</insert>
+
+<update id="countUp" parameterType="hashmap">
+	update poboard set cnt=cnt+1 where seq=#{seq} 
+</update>
+
+<select id="adoptionList" resultType="hashmap"> 
+	select * from poboard order by seq 
+</select>
+
+<select id="adoptionDetail" resultType="hashmap"> 
+	select seq,id,to_char(pdate,'yyyy/mm/dd') pdate,cnt,complete,reserve,title,petage,petgender,petkind,address,root,step,indent,mainimg,subimg from poboard where seq=#{seq}
+</select>
+
+<delete id="adoptionDelete">
+	delete poboard where seq=#{seq} 
+</delete>
+
+<select id="categoryList" resultType="hashmap"> 
+	select * from poboard where PETTYPE=#{PETTYPE} 
+</select>
+
+<insert id="REinsert" parameterType="hashmap">
+	insert into adoptionreply (seq, id, content, rdate,root, root1,step, indent,myimage) values((select nvl(max(seq),0)+1 from adoptionreply),#{id},#{content},sysdate,#{root},#{root1},#{step},#{indent},#{myimage}) 
+</insert>
+
+<select id="RElist" resultType="hashmap">
+	select seq,id,content,to_char(rdate,'yyyy/mm/dd') rdate,root,step,indent,myimage from adoptionreply where root=${root} order by seq asc 
+</select>
+
+<select id="RErelist" resultType="hashmap">
+	select seq,id,content,to_char(rdate,'yyyy/mm/dd') rdate,root,step,indent,myimage from adoptionreply where root=${root} and root1=${root1} order by seq asc 
+</select>
+
+<update id="completeUpdate">	
+	update poboard set complete = 'Y' where seq=#{seq} 
+</update>
+
+<insert id="insertLike" parameterType="hashmap">
+	insert into likeboard (root,id) values (#{root},#{id}) 
+</insert>
+
+<delete id="deleteLike">
+	delete likeboard where id=#{id} and root=#{root} 
+</delete>
+
+<update id="likeCount">
+	update poboard set reserve=(select count(*) from likeboard where root=#{root}) where seq=#{seq} 
+</update>
+
+<select id="likeCheck" resultType="hashmap">
+	select * from likeboard where id=#{id} and root=#{root} 
+</select>
+
+<select id="myAlist" resultType="hashmap">
+	select * from poboard where id=#{id} 
+</select>
+
+<select id="myLlist" resultType="hashmap">
+	select * from poboard p, likeboard l where p.root = l.root and l.id=#{id} 
+</select>
+
+</mapper>

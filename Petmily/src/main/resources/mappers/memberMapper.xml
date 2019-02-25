@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace="banana.apple.mapper.memberMapper">
+
+<select id="memberDetail" resultType="aaa.bbb.ccc.vo.MemberVO"> 
+ 	select * from pmember where id=#{id} and pw=#{pw}
+</select>
+
+<select id="idcheck" resultType="aaa.bbb.ccc.vo.MemberVO"> 
+ 	select * from pmember where id=#{id}
+</select>
+
+<select id="findId" resultType="aaa.bbb.ccc.vo.MemberVO"> 
+ 	select id from pmember where name=#{name} and bday=#{bday}
+</select>
+
+<select id="findPw" resultType="aaa.bbb.ccc.vo.MemberVO"> 
+ 	select * from pmember where id=#{id} and name=#{name}
+</select>
+
+<update id="newPw">
+ 	update pmember set pw=#{pw} where id=#{id}
+</update>
+
+<update id="imgInsert">
+ 	update pmember set myimg=#{myimg} where id=#{id}
+</update>
+
+<!-- 회원가입 -->
+<insert id="memberInsert">
+	insert into pmember (id,pw,name,gender,bday,hp,exp,detail) values(#{id},#{pw},#{name},#{gender},#{bday},#{hp1}||'-'||#{hp2}||'-'||#{hp3},#{exp},#{detail1}||'-'||#{detail2}) 
+</insert>
+
+<!-- 회원탈퇴 -->
+<delete id="memberDelete">
+	delete pmember where id=#{id} 
+</delete>
+
+<!-- 회원 수정 -->
+<update id="memberUpdate">
+	update pmember set pw=#{pw},exp=#{exp},detail=#{detail1}||'-'||#{detail2} where id=#{id} 
+</update>
+
+<!-- 회원 수정 -->
+<update id="imgUpdate">
+	update pmember set myimage=#{myimage} where id=#{id} 
+</update>
+
+</mapper>
